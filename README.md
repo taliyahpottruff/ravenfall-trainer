@@ -28,7 +28,7 @@ An example of valid data below (Note: this is an example and it won't validate p
     "username": "twitchuser123",
     "oauth": "oauth:asd8443jdfh347ejhds73wh9da8",
     "channels": [
-        "#zerratar
+        "#zerratar"
     ],
     "defaultSkill": "crafting"
 }
