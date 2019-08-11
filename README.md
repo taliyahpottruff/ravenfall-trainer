@@ -25,8 +25,8 @@ Next you'll need to create a `config.json` file and fill it with the follow info
 An example of valid data below (Note: this is an example and it won't validate properly with Twitch's servers):
 ```JSON
 {
-    "username": "twitchuser123"
-    "oauth": "oauth:asd8443jdfh347ejhds73wh9da8"
+    "username": "twitchuser123",
+    "oauth": "oauth:asd8443jdfh347ejhds73wh9da8",
     "channels": [
         "#zerratar
     ],
