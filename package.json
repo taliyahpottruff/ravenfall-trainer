@@ -1,0 +1,16 @@
+{
+  "name": "ravenfall-trainer",
+  "version": "0.1.0",
+  "description": "Trainer for zerratar's ravenfall",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
+  },
+  "author": "Trenton Pottruff",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0",
+    "tmi.js": "^1.4.5"
+  }
+}
