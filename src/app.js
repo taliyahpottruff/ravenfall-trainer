@@ -120,7 +120,7 @@ client.on('message', (channel, userstate, message, self) => {
     }
 });
 
-var trains = ['def', 'atk', 'str'];
+var trains = ['def', 'atk', 'str', 'crafting', 'mining', 'woodcutting', 'fishing', 'farming'];
 var curTrain = 0;
 
 trainLoop = function(channel, userstate, message, self, initTrain) {
