@@ -21,6 +21,7 @@ var inGame = false;
 var raiding = false;
 var kicker = '';
 var joinTimeout = false;
+var canKick = true;
 
 var loop;
 
@@ -75,13 +76,21 @@ client.on('message', (channel, userstate, message, self) => {
 
     if (userstate.username == 'zerrabot') { //Only if zerrabot says things
         if (message.includes(`${config.username} was kicked from the game`)) {
-            client.say(channel, 'Rude PMSTwin');
-            setTimeout(function() {
-                client.say(channel, `!kick ${kicker}`);
+            if (canKick) {
+                client.say(channel, 'Rude PMSTwin');
                 setTimeout(function() {
-                    client.say(channel, '!join');
-                }, Math.floor(Math.random() * 4000) + 2000);
-            }, 1500);
+                    client.say(channel, `!kick ${kicker}`);
+                    setTimeout(function() {
+                        client.say(channel, '!join');
+                    }, Math.floor(Math.random() * 4000) + 2000);
+                }, 1500);
+                canKick = false;
+                setTimeout(function(){
+                    canKick = true;
+                }, 10000);
+            } else {
+                client.say(channel, `@${kicker} Can we not have a kick war? Kthxbye`);
+            }
         }
         
         if (message.includes('zerratar was kicked from the game')) {
