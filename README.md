@@ -3,7 +3,7 @@ This is a auto-trainer tool for Ravenfall by Zerratar.
 
 ## How To Use
 ### Recommended
-It is recommended you download the latest release from the **Releases** tab.
+It is recommended you download the latest release from the [**Releases**](https://github.com/TrentonPottruff/ravenfall-trainer/releases) tab.
 
 ### Optional
 If you want to build the program yourself you can follow the instructions below (Note: NodeJS is required to be installed on your computer):
