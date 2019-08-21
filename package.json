@@ -5,17 +5,23 @@
   "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/app.js"
+    "start": "electron ."
   },
   "author": "Trenton Pottruff",
   "license": "ISC",
   "dependencies": {
+    "@madelsberger/pausebuffer": "^1.0.0",
     "base64-url": "^2.3.2",
     "request": "^2.88.0",
-    "tmi.js": "^1.4.5"
+    "sanitize-html": "^1.20.1",
+    "tmi.js": "^1.4.5",
+    "url-parse": "^1.4.7"
   },
   "bin": "bin/app.exe",
   "pkg": {
     "assets": "config/**/*"
+  },
+  "devDependencies": {
+    "electron": "^6.0.3"
   }
 }

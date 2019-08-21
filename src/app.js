@@ -1,7 +1,41 @@
 const tmi = require("tmi.js");
-const config = JSON.parse(require('fs').readFileSync(process.cwd() + "/config.json", 'utf8'));;
+const pb = require('@madelsberger/pausebuffer');
+const fs = require('fs');
+var config = JSON.parse(fs.readFileSync(process.cwd() + "/config.json", 'utf8'));
 const request = require("request");
 const base64url = require("base64-url");
+const { app, BrowserWindow, ipcMain } = require("electron");
+var sanitize = require('sanitize-html');
+var Url = require('url-parse');
+
+//Set options
+let options = {
+  options: {
+    debug: true
+  },
+  connection: {
+    reconnect: true,
+    secure: true
+  },
+  identity: {
+    username: config.username,
+    password: config.oauth
+  },
+  channels: config.channels
+};
+
+app.on('ready', () => {
+  //Setup dashboard window
+  let win = new BrowserWindow({
+    width: 800,
+    height: 400,
+    webPreferences: {
+      nodeIntegration: true
+    },
+    show: false
+  });
+
+  win.loadFile('./src/dashboard.html');
 
 //Get a token
 var tokenReqBody = {
@@ -31,28 +65,15 @@ request(
             }
         });*/
 
-      //Set options
-      let options = {
-        options: {
-          debug: true
-        },
-        connection: {
-          reconnect: true,
-          secure: true
-        },
-        identity: {
-          username: config.username,
-          password: config.oauth
-        },
-        channels: config.channels
-      };
-
-      let client = new tmi.client(options);
+      let client = pb.wrap(new tmi.client(options));
       var inGame = false;
       var raiding = false;
       var kicker = "";
       var joinTimeout = false;
       var canKick = true;
+      var data = {
+        training: ""
+      };
       var authToken = Buffer.from(JSON.stringify(tokenObj)).toString("base64");
 
       var loop;
@@ -62,22 +83,11 @@ request(
           return;
         }
 
-        //Detect Game Restarts
-        if (
-          message.includes(
-            `${channel.replace("#", "").toLowerCase()}, Welcome to the game`
-          ) &&
-          !joinTimeout
-        ) {
-          client.say(channel, "!join");
-          setJoinTimeout();
-        }
-
         //Catch my messages
         if (userstate.username == config.username) {
           if (message.startsWith("!train") && !inGame) {
             console.log("I'm already in the game apparently");
-            trainLoop(channel, userstate, message, self, false);
+            trainLoop(channel, userstate, message, self, false, false);
           } else if (message.startsWith("!raid")) {
             raiding = true;
           }
@@ -86,8 +96,8 @@ request(
 
         //Special join instructions
         if (message == config.username + ", Welcome to the game!") {
-          if (userstate.username == "zerrabot") {
-            trainLoop(channel, userstate, message, self, true);
+          if (userstate.username == config.bot) {
+            trainLoop(channel, userstate, message, self, true, false);
             setJoinTimeout();
           } else {
             var troller = userstate.username;
@@ -113,13 +123,16 @@ request(
             }, Math.floor(Math.random() * 4000) + 1000);
           }
           return;
-        } else if (
-          message ==
-          `${config.username}, Join failed. Reason: You're already playing!`
-        ) {
-          trainLoop(channel, userstate, message, self, false);
+        } else if (message == `${config.username}, Join failed. Reason: You're already playing!`) {
+          trainLoop(channel, userstate, message, self, false, false);
           setJoinTimeout();
           return;
+        }
+
+        //Detect Game Restarts
+        if (message.includes(`${channel.replace("#", "").toLowerCase()}, Welcome to the game`) && !joinTimeout) {
+          client.say(channel, "!join");
+          setJoinTimeout();
         }
 
         //Catch kicks
@@ -127,7 +140,7 @@ request(
           kicker = userstate.username;
         }
 
-        if (userstate.username == "zerrabot") {
+        if (userstate.username == config.bot) {
           //Only if zerrabot says things
           if (message.includes(`${config.username} was kicked from the game`)) {
             if (canKick) {
@@ -161,15 +174,6 @@ request(
           }
 
           if (
-            message.includes("Welcome to the game!") &&
-            !inGame &&
-            !joinTimeout
-          ) {
-            client.say(channel, "!join");
-            trainLoop();
-          }
-
-          if (
             message.startsWith(
               `${config.username}, A duel request received from`
             )
@@ -197,15 +201,29 @@ request(
       ];
       var curTrain = 0;
 
-      trainLoop = function(channel, userstate, message, self, initTrain) {
+      trainLoop = function(channel, userstate, message, self, initTrain, randTrain) {
+        win.webContents.send('inGame', true);
         inGame = true;
-        if (initTrain) client.say(channel, `!train ${config.defaultSkill}`);
+        var random = Math.floor(Math.random() * trains.length);
+        if (initTrain) {
+          client.say(channel, `!train ${config.defaultSkill}`);
+          data.training = config.defaultSkill;
+        }
+        if (randTrain) {
+          var toTrain = trains[random];
+          client.say(channel, `!train ${toTrain}`);
+          data.training = toTrain;
+        }
         if (loop) clearInterval(loop);
         loop = setInterval(function() {
-          var random = Math.floor(Math.random() * trains.length);
-          if (!raiding) client.say(channel, `!train ${trains[random]}`);
+          if (!raiding) {
+            var toTrain = trains[random];
+            client.say(channel, `!train ${toTrain}`);
+            data.training = toTrain;
+          }
           raiding = false;
         }, 1000 * 1000);
+        win.webContents.send('training', data.training);
       };
 
       setJoinTimeout = () => {
@@ -215,8 +233,86 @@ request(
         }, 1000 * 60 * 2);
       };
 
-      //Finally, connect to server
-      client.connect();
+      //IPC Messages
+      ipcMain.on('method-trainNext', (event) => {
+        console.log("* Training next skill!");
+        trainLoop(config.channels[0], "", "", "", false, true);
+        console.log(trains + ", " + data.training);
+        win.webContents.send('training', data.training);
+      });
+
+      //Connect
+      client.connect().then(() => {
+        win.show();
+      }).catch(error => {
+        loginWinFunc(win);
+      });
     }
   }
 );
+});
+
+
+loginWinFunc = function(win) {
+  let loginWin = new BrowserWindow({
+    width: 350,
+    height: 500,
+    webPreferences: {
+      nodeIntegration: true
+    },
+    center: true,
+    autoHideMenuBar: true,
+    fullscreenable: false,
+    maximizable: false
+  });
+
+  loginWin.once('close', () => {
+    app.quit();
+  });
+  loginWin.webContents.once("will-redirect", function (e, url, isInPlace, isMainFrame, procId, routId) {
+    var urlObj = new Url(url);
+    //Check to see if it's a token
+    if (urlObj.hostname == 'localhost') {
+      e.preventDefault();
+      var hash = urlObj.hash;
+      hash = hash.replace('#', '');
+      var hashes = hash.split('&');
+      for (var i = 0; i < hashes.length; i++) {
+        if (hashes[i].startsWith('access_token')) {
+          var token = hashes[i].split('=')[1];
+          console.log(token);
+          //JSON.parse(require('fs').readFileSync(process.cwd() + "/config.json", 'utf8'));
+          config.oauth = `oauth:${token}`;
+          fs.writeFile(process.cwd() + '/config.json', JSON.stringify(config), (err) => {
+            if (err) {
+              console.log(`AN ERROR OCCURED WITH SAVING: ${err}`);
+            }
+          });
+          options.identity.password = config.oauth;
+          client = pb.wrap(new tmi.client(options));
+          client.connect().then(() => {
+            console.log("Success!");
+            win.show();
+            loginWin.destroy();
+          }).catch((reason) => {
+            console.log(`Failure: ${reason}`);
+            loginWinFunc();
+            loginWin.destroy();
+          });
+        }
+      }
+    }
+  });
+
+  loginWin.loadFile("./src/loginForm.html");
+}
+
+clean = (input) => {
+  return sanitize(input, {
+    allowedTags: [ ],
+    allowedAttributes: {
+      'a': [ ]
+    },
+    allowedIframeHostnames: []
+  });
+}
