@@ -330,12 +330,7 @@ loginWinFunc = function (win) {
           var token = hashes[i].split('=')[1];
           console.log(token);
           //JSON.parse(require('fs').readFileSync(process.cwd() + "/config.json", 'utf8'));
-          config.oauth = `oauth:${token}`;
-          fs.writeFile(process.cwd() + '/config.json', JSON.stringify(config), (err) => {
-            if (err) {
-              console.log(`AN ERROR OCCURED WITH SAVING: ${err}`);
-            }
-          });
+
 
           //Grab client info from Twitch
           request('https://id.twitch.tv/oauth2/validate', {
@@ -347,8 +342,16 @@ loginWinFunc = function (win) {
               console.log(err);
               return;
             }
-            console.log(body);
+            var respBody = JSON.parse(body);
+            config.username = respBody.login;
+            config.oauth = `oauth:${token}`;
+            fs.writeFile(process.cwd() + '/config.json', JSON.stringify(config), (err) => {
+              if (err) {
+                console.log(`AN ERROR OCCURED WITH SAVING: ${err}`);
+              }
+            });
 
+            options.identity.username = config.username;
             options.identity.password = config.oauth;
             client = pb.wrap(new tmi.client(options));
             client.connect().then(() => {
