@@ -1,14 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Login Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://kit.fontawesome.com/380bdf1328.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Login</title>
 </head>
+
 <body>
-    <p><b>Don't forget to login!</b></p>
-    <p>Authenticate with Twitch</p>
-    <a href="https://id.twitch.tv/oauth2/authorize?client_id=2jee8wa20er6b23x43am7oiwqhoc5h&redirect_uri=http%3A%2F%2Flocalhost&response_type=token&scope=chat:read+chat:edit+channel:moderate+whispers:read+whispers:edit+channel_editor">Login with Twitch</a>
+    <div class="container">
+        <div class="fully-centered">
+            <div class="center">
+                <h5>Welcome to Ravenfall Trainer</h5><br>
+                You need to be logged in with your Twitch account to use this tool. So click the button
+                below!<br><br><br>
+                <a class="btn-large twitch" style="width: 250px;"
+                    href="https://id.twitch.tv/oauth2/authorize?client_id=2jee8wa20er6b23x43am7oiwqhoc5h&redirect_uri=http%3A%2F%2Flocalhost&response_type=token&scope=chat:read+chat:edit+channel:moderate">
+                    <i class="fab fa-twitch"></i></a>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

@@ -1,0 +1,19 @@
+.fully-centered {
+    display: grid;
+    height: 100vh;
+    margin: 0;
+    place-items: center center;
+}
+
+.twitch {
+    background-color: #6441A4;
+}
+
+.twitch:hover {
+    background-color: rgb(119, 78, 196);
+}
+
+body {
+    background-color: #181818;
+    color: white;
+}

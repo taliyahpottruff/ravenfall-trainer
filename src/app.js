@@ -37,6 +37,7 @@ app.on('ready', () => {
       nodeIntegration: true
     },
     show: false,
+    autoHideMenuBar: true
   });
 
   win.loadFile('./src/pages/dashboard.html');
@@ -289,15 +290,22 @@ app.on('ready', () => {
 
 loginWinFunc = function (win) {
   let loginWin = new BrowserWindow({
-    width: 350,
-    height: 500,
+    width: 887,
+    height: 556,
     webPreferences: {
       nodeIntegration: true
     },
     center: true,
     autoHideMenuBar: true,
     fullscreenable: false,
-    maximizable: false
+    maximizable: false,
+    autoHideMenuBar: true,
+    resizable: false,
+    show: false
+  });
+
+  loginWin.once('ready-to-show', () => {
+    loginWin.show();
   });
 
   loginWin.once('close', () => {
