@@ -4,7 +4,11 @@ const fs = require('fs');
 var config = JSON.parse(fs.readFileSync(process.cwd() + "/config.json", 'utf8'));
 const request = require("request");
 const base64url = require("base64-url");
-const { app, BrowserWindow, ipcMain } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain
+} = require("electron");
 var sanitize = require('sanitize-html');
 var Url = require('url-parse');
 
@@ -28,232 +32,262 @@ app.on('ready', () => {
   //Setup dashboard window
   let win = new BrowserWindow({
     width: 800,
-    height: 400,
+    height: 600,
     webPreferences: {
       nodeIntegration: true
     },
-    show: false
+    show: false,
   });
 
-  win.loadFile('./src/dashboard.html');
+  win.loadFile('./src/pages/dashboard.html');
+  //win.webContents.openDevTools();
 
-//Get a token
-var tokenReqBody = {
-  username: config.username,
-  password: ""
-};
-request(
-  {
-    method: "POST",
-    url: "https://www.ravenfall.stream/api/auth",
-    body: tokenReqBody,
-    json: true,
-    headers: { Accept: "application/json", "Content-Type": "application/json" }
-  },
-  (error, response, body) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(body);
-      var tokenObj = body;
+  //Get a token
+  var tokenReqBody = {
+    username: config.username,
+    password: ""
+  };
+  request({
+      method: "POST",
+      url: "https://www.ravenfall.stream/api/auth",
+      body: tokenReqBody,
+      json: true,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      }
+    },
+    (error, response, body) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(body);
+        var tokenObj = body;
 
-      /*request({method: 'GET', uri: 'https://www.ravenfall.stream/api/players/28430435', json: true, headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'auth-token': }}, (err, res, body) => {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log(body);
-            }
-        });*/
+        /*request({method: 'GET', uri: 'https://www.ravenfall.stream/api/players/28430435', json: true, headers: {'Accept': 'application/json', 'Content-Type': 'application/json', 'auth-token': }}, (err, res, body) => {
+              if (err) {
+                  console.log(err);
+              } else {
+                  console.log(body);
+              }
+          });*/
 
-      let client = pb.wrap(new tmi.client(options));
-      var inGame = false;
-      var raiding = false;
-      var kicker = "";
-      var joinTimeout = false;
-      var canKick = true;
-      var data = {
-        training: ""
-      };
-      var authToken = Buffer.from(JSON.stringify(tokenObj)).toString("base64");
+        let client = pb.wrap(new tmi.client(options));
+        var inGame = false;
+        var raiding = false;
+        var kicker = "";
+        var joinTimeout = false;
+        var canKick = true;
+        var data = {
+          training: ""
+        };
+        var authToken = Buffer.from(JSON.stringify(tokenObj)).toString("base64");
 
-      var loop;
+        var loop;
 
-      client.on("message", (channel, userstate, message, self) => {
-        if (self) {
-          return;
-        }
-
-        //Catch my messages
-        if (userstate.username == config.username) {
-          if (message.startsWith("!train") && !inGame) {
-            console.log("I'm already in the game apparently");
-            trainLoop(channel, userstate, message, self, false, false);
-          } else if (message.startsWith("!raid")) {
-            raiding = true;
+        client.on("message", (channel, userstate, message, self) => {
+          if (self) {
+            return;
           }
-          return;
-        }
 
-        //Special join instructions
-        if (message == config.username + ", Welcome to the game!") {
-          if (userstate.username == config.bot) {
-            trainLoop(channel, userstate, message, self, true, false);
-            setJoinTimeout();
-          } else {
-            var troller = userstate.username;
-            var trollRes = [
-              "really? PMSTwin",
-              "Nice try @%user% zerrat1LUL",
-              "@%user% two can play that game LUL",
-              "PogChamp PogChamp",
-              "PMSTwin",
-              "ugh trentoTriggered"
-            ];
-            setTimeout(function() {
-              client.say(
-                channel,
-                trollRes[Math.floor(Math.random() * trollRes.length)].replace(
-                  "%user%",
-                  troller
-                )
-              );
-              setTimeout(function() {
-                client.say(channel, `!kick ${troller}`);
+          //Catch my messages
+          if (userstate.username == config.username) {
+            if (message.startsWith("!train") && !inGame) {
+              console.log("I'm already in the game apparently");
+              trainLoop(channel, userstate, message, self, false, false);
+            } else if (message.startsWith("!raid")) {
+              raiding = true;
+            }
+            return;
+          }
+
+          //Special join instructions
+          if (message == config.username + ", Welcome to the game!") {
+            if (userstate.username == config.bot) {
+              trainLoop(channel, userstate, message, self, true, false);
+              setJoinTimeout();
+            } else {
+              var troller = userstate.username;
+              var trollRes = [
+                "really? PMSTwin",
+                "Nice try @%user% zerrat1LUL",
+                "@%user% two can play that game LUL",
+                "PogChamp PogChamp",
+                "PMSTwin",
+                "ugh trentoTriggered"
+              ];
+              setTimeout(function () {
+                client.say(
+                  channel,
+                  trollRes[Math.floor(Math.random() * trollRes.length)].replace(
+                    "%user%",
+                    troller
+                  )
+                );
+                setTimeout(function () {
+                  client.say(channel, `!kick ${troller}`);
+                }, Math.floor(Math.random() * 4000) + 1000);
               }, Math.floor(Math.random() * 4000) + 1000);
-            }, Math.floor(Math.random() * 4000) + 1000);
-          }
-          return;
-        } else if (message == `${config.username}, Join failed. Reason: You're already playing!`) {
-          trainLoop(channel, userstate, message, self, false, false);
-          setJoinTimeout();
-          return;
-        }
-
-        //Detect Game Restarts
-        if (message.includes(`${channel.replace("#", "").toLowerCase()}, Welcome to the game`) && !joinTimeout) {
-          client.say(channel, "!join");
-          setJoinTimeout();
-        }
-
-        //Catch kicks
-        if (message.startsWith(`!kick ${config.username}`)) {
-          kicker = userstate.username;
-        }
-
-        if (userstate.username == config.bot) {
-          //Only if zerrabot says things
-          if (message.includes(`${config.username} was kicked from the game`)) {
-            if (canKick) {
-              client.say(channel, "Rude PMSTwin");
-              setTimeout(function() {
-                client.say(channel, `!kick ${kicker}`);
-                setTimeout(function() {
-                  client.say(channel, "!join");
-                }, Math.floor(Math.random() * 4000) + 2000);
-              }, 1500);
-              canKick = false;
-              setTimeout(function() {
-                canKick = true;
-              }, 10000);
-            } else {
-              client.say(
-                channel,
-                `@${kicker} Can we not have a kick war? Kthxbye`
-              );
             }
+            return;
+          } else if (message == `${config.username}, Join failed. Reason: You're already playing!`) {
+            trainLoop(channel, userstate, message, self, false, false);
+            setJoinTimeout();
+            return;
           }
 
-          if (message.includes("zerratar was kicked from the game")) {
+          //Detect Game Restarts
+          if (message.includes(`${channel.replace("#", "").toLowerCase()}, Welcome to the game`) && !joinTimeout) {
+            client.say(channel, "!join");
             setJoinTimeout();
           }
 
-          if (message.includes("raid boss has appeared")) {
-            setTimeout(function() {
-              client.say(channel, "!raid");
-            }, Math.floor(Math.random() * 5000) + 1000);
+          //Catch kicks
+          if (message.startsWith(`!kick ${config.username}`)) {
+            kicker = userstate.username;
           }
 
-          if (
-            message.startsWith(
-              `${config.username}, A duel request received from`
-            )
-          ) {
-            client.say(channel, "!duel accept");
+          if (userstate.username == config.bot) {
+            //Only if zerrabot says things
+            if (message.includes(`${config.username} was kicked from the game`)) {
+              if (canKick) {
+                client.say(channel, "Rude PMSTwin");
+                setTimeout(function () {
+                  client.say(channel, `!kick ${kicker}`);
+                  setTimeout(function () {
+                    client.say(channel, "!join");
+                  }, Math.floor(Math.random() * 4000) + 2000);
+                }, 1500);
+                canKick = false;
+                setTimeout(function () {
+                  canKick = true;
+                }, 10000);
+              } else {
+                client.say(
+                  channel,
+                  `@${kicker} Can we not have a kick war? Kthxbye`
+                );
+              }
+            }
+
+            if (message.includes("zerratar was kicked from the game")) {
+              setJoinTimeout();
+            }
+
+            if (message.includes("raid boss has appeared")) {
+              setTimeout(function () {
+                client.say(channel, "!raid");
+              }, Math.floor(Math.random() * 5000) + 1000);
+            }
+
+            if (
+              message.startsWith(
+                `${config.username}, A duel request received from`
+              )
+            ) {
+              client.say(channel, "!duel accept");
+            }
+
+            if (message.includes("Ravenfall has not started.") && inGame) {
+              console.log("RavenFall is not running! Stopping train loop...");
+              inGame = false;
+              clearInterval(loop);
+            }
           }
+        });
 
-          if (message.includes("Ravenfall has not started.") && inGame) {
-            console.log("RavenFall is not running! Stopping train loop...");
-            inGame = false;
-            clearInterval(loop);
+        var trains = [
+          "def",
+          "atk",
+          "str",
+          "crafting",
+          "mining",
+          "woodcutting",
+          "fishing",
+          "farming"
+        ];
+        var curTrain = 0;
+
+        trainLoop = function (channel, userstate, message, self, initTrain, randTrain) {
+          win.webContents.send('inGame', true);
+          inGame = true;
+          var random = Math.floor(Math.random() * config.trains.length);
+          if (initTrain) {
+            client.say(channel, `!train ${config.defaultSkill}`);
+            data.training = config.defaultSkill;
           }
-        }
-      });
-
-      var trains = [
-        "def",
-        "atk",
-        "str",
-        "crafting",
-        "mining",
-        "woodcutting",
-        "fishing",
-        "farming"
-      ];
-      var curTrain = 0;
-
-      trainLoop = function(channel, userstate, message, self, initTrain, randTrain) {
-        win.webContents.send('inGame', true);
-        inGame = true;
-        var random = Math.floor(Math.random() * trains.length);
-        if (initTrain) {
-          client.say(channel, `!train ${config.defaultSkill}`);
-          data.training = config.defaultSkill;
-        }
-        if (randTrain) {
-          var toTrain = trains[random];
-          client.say(channel, `!train ${toTrain}`);
-          data.training = toTrain;
-        }
-        if (loop) clearInterval(loop);
-        loop = setInterval(function() {
-          if (!raiding) {
-            var toTrain = trains[random];
+          if (randTrain) {
+            var toTrain = config.trains[random];
             client.say(channel, `!train ${toTrain}`);
             data.training = toTrain;
           }
-          raiding = false;
-        }, 1000 * 1000);
-        win.webContents.send('training', data.training);
-      };
+          if (loop) clearInterval(loop);
+          loop = setInterval(function () {
+            if (!raiding) {
+              var toTrain = config.trains[random];
+              client.say(channel, `!train ${toTrain}`);
+              data.training = toTrain;
+            }
+            raiding = false;
+          }, 1000 * 1000);
+          win.webContents.send('training', data.training);
+        };
 
-      setJoinTimeout = () => {
-        joinTimeout = true;
-        setInterval(function() {
-          joinTimeout = false;
-        }, 1000 * 60 * 2);
-      };
+        setJoinTimeout = () => {
+          joinTimeout = true;
+          setInterval(function () {
+            joinTimeout = false;
+          }, 1000 * 60 * 2);
+        };
 
-      //IPC Messages
-      ipcMain.on('method-trainNext', (event) => {
-        console.log("* Training next skill!");
-        trainLoop(config.channels[0], "", "", "", false, true);
-        console.log(trains + ", " + data.training);
-        win.webContents.send('training', data.training);
-      });
+        //IPC Messages
+        ipcMain.on('method-trainNext', (event) => {
+          console.log("* Training next skill!");
+          trainLoop(config.channels[0], "", "", "", false, true);
+          console.log(config.trains + ", " + data.training);
+          win.webContents.send('training', data.training);
+        });
+        ipcMain.on('trainableChanged', (event, skill, value) => {
+          var changeMade = false;
+          if (value) {
+            if (!config.trains.includes(skill)) {
+              config.trains.push(skill);
+              changeMade = true;
+            }
+          } else {
+            if (config.trains.includes(skill)) {
+              var index = config.trains.indexOf(skill);
+              config.trains.splice(index, 1);
+              changeMade = true;
+            }
+          }
 
-      //Connect
-      client.connect().then(() => {
-        win.show();
-      }).catch(error => {
-        loginWinFunc(win);
-      });
+          if (changeMade) {
+            fs.writeFile(process.cwd() + '/config.json', JSON.stringify(config), (err) => {
+              if (err) {
+                console.log(err);
+              }
+            });
+          }
+        });
+
+        config.trains.forEach((value) => {
+          win.webContents.send('setTrainCheck', value, true);
+        });
+
+        //Connect
+        client.connect().then(() => {
+          win.show();
+        }).catch(error => {
+          loginWinFunc(win);
+        });
+      }
     }
-  }
-);
+  );
 });
 
 
-loginWinFunc = function(win) {
+loginWinFunc = function (win) {
   let loginWin = new BrowserWindow({
     width: 350,
     height: 500,
@@ -304,14 +338,14 @@ loginWinFunc = function(win) {
     }
   });
 
-  loginWin.loadFile("./src/loginForm.html");
+  loginWin.loadFile("./src/pages/loginForm.html");
 }
 
 clean = (input) => {
   return sanitize(input, {
-    allowedTags: [ ],
+    allowedTags: [],
     allowedAttributes: {
-      'a': [ ]
+      'a': []
     },
     allowedIframeHostnames: []
   });

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <title>Ravenfall Trainer</title>
+</head>
+
+<body>
+    <div class="container">
+        <p>Status: <b><span id="online-status"><span style="color: red;">Not In Game</span></span></b></p>
+        <p>Currently training: <span id="training"></span>
+            <button class="nextTrainButton btn" onclick="nextTraining()">Train Random</button>
+        </p>
+        <p>Skills To Train:</p>
+        <fieldset>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="atk-check" value="atk">
+                    <span class="lever"></span>
+                </label>
+                Attack
+            </div>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="def-check" value="def">
+                    <span class="lever"></span>
+                </label>
+                Defense
+            </div>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="str-check" value="str">
+                    <span class="lever"></span>
+                </label>
+                Strength
+            </div>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="crafting-check" value="crafting">
+                    <span class="lever"></span>
+                </label>
+                Crafting
+            </div>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="woodcutting-check" value="woodcutting">
+                    <span class="lever"></span>
+                </label>
+                Woodcutting
+            </div>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="mining-check" value="mining">
+                    <span class="lever"></span>
+                </label>
+                Mining
+            </div>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="farming-check" value="farming">
+                    <span class="lever"></span>
+                </label>
+                Farming
+            </div>
+            <div class="switch">
+                <label>
+                    <input type="checkbox" name="trainable" class="trcheck" id="fishing-check" value="fishing">
+                    <span class="lever"></span>
+                </label>
+                Fishing
+            </div>
+        </fieldset>
+    </div>
+</body>
+<script type="text/javascript" src="dashboard.js"></script>
+
+</html>
