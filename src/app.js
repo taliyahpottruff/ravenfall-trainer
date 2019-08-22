@@ -82,7 +82,13 @@ app.on('ready', () => {
         var data = {
           training: ""
         };
-        var authToken = Buffer.from(JSON.stringify(tokenObj)).toString("base64");
+        var authToken = '';
+
+        try {
+          authToken = Buffer.from(JSON.stringify(tokenObj)).toString("base64");
+        } catch (err) {
+          console.log(`ERROR: ${err}`);
+        }
 
         var loop;
 
