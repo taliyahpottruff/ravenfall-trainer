@@ -336,16 +336,30 @@ loginWinFunc = function (win) {
               console.log(`AN ERROR OCCURED WITH SAVING: ${err}`);
             }
           });
-          options.identity.password = config.oauth;
-          client = pb.wrap(new tmi.client(options));
-          client.connect().then(() => {
-            console.log("Success!");
-            win.show();
-            loginWin.destroy();
-          }).catch((reason) => {
-            console.log(`Failure: ${reason}`);
-            loginWinFunc();
-            loginWin.destroy();
+
+          //Grab client info from Twitch
+          request('https://id.twitch.tv/oauth2/validate', {
+            headers: {
+              'Authorization': `OAuth ${token}`
+            }
+          }, (err, resp, body) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            console.log(body);
+
+            options.identity.password = config.oauth;
+            client = pb.wrap(new tmi.client(options));
+            client.connect().then(() => {
+              console.log("Success!");
+              win.show();
+              loginWin.destroy();
+            }).catch((reason) => {
+              console.log(`Failure: ${reason}`);
+              loginWinFunc();
+              loginWin.destroy();
+            });
           });
         }
       }
