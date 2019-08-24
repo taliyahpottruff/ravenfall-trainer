@@ -27,6 +27,14 @@
     color: white;
 }
 
+.window-button:hover {
+    background-color: rgb(100, 100, 100);
+}
+
+.window-button:active {
+    background-color: rgb(126, 126, 126);
+}
+
 body {
     background-color: #181818;
     color: white;
