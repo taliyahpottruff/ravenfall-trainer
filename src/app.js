@@ -37,7 +37,8 @@ app.on('ready', () => {
       nodeIntegration: true
     },
     show: false,
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
+    frame: false
   });
 
   win.loadFile('./src/pages/dashboard.html');
@@ -276,6 +277,9 @@ app.on('ready', () => {
               }
             });
           }
+        });
+        ipcMain.on('quit-app', (event) => {
+          app.quit();
         });
 
         config.trains.forEach((value) => {

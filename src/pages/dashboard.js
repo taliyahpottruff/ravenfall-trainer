@@ -18,6 +18,10 @@ ipcRenderer.on('setTrainCheck', (event, skill, checked) => {
     element.checked = checked;
 });
 
+document.querySelector('#close-button').addEventListener('click', (e) => {
+    ipcRenderer.send('quit-app');
+});
+
 document.querySelectorAll('.trcheck').forEach((value) => {
     value.addEventListener("input", (e) => {
         var value = e.target.value;
