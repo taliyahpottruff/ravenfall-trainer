@@ -18,6 +18,14 @@ ipcRenderer.on('setTrainCheck', (event, skill, checked) => {
     element.checked = checked;
 });
 
+document.querySelector('#min-button').addEventListener('click', (e) => {
+    ipcRenderer.send('minimizeWindow');
+});
+
+document.querySelector('#max-button').addEventListener('click', (e) => {
+    ipcRenderer.send('maximizeWindow');
+});
+
 document.querySelector('#close-button').addEventListener('click', (e) => {
     ipcRenderer.send('quit-app');
 });

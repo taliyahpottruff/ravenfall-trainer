@@ -5,16 +5,19 @@
   "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "set NODE_ENV=dev && electron ."
   },
   "author": "Trenton Pottruff",
   "license": "ISC",
   "dependencies": {
     "@madelsberger/pausebuffer": "^1.0.0",
     "base64-url": "^2.3.2",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^4.1.2",
     "request": "^2.88.0",
     "sanitize-html": "^1.20.1",
     "tmi.js": "^1.4.5",
+    "update-electron-app": "^1.5.0",
     "url-parse": "^1.4.7"
   },
   "bin": "bin/app.exe",
@@ -22,6 +25,9 @@
     "assets": "config/**/*"
   },
   "devDependencies": {
-    "electron": "^6.0.3"
+    "electron": "^6.0.3",
+    "electron-builder": "^21.2.0",
+    "electron-packager": "^14.0.4",
+    "electron-winstaller": "^4.0.0"
   }
 }

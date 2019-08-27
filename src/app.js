@@ -12,6 +12,8 @@ const {
 var sanitize = require('sanitize-html');
 var Url = require('url-parse');
 
+require('update-electron-app')();
+
 //Set options
 let options = {
   options: {
@@ -280,6 +282,16 @@ app.on('ready', () => {
         });
         ipcMain.on('quit-app', (event) => {
           app.quit();
+        });
+        ipcMain.on('minimizeWindow', (e) => {
+          win.minimize();
+        });
+        ipcMain.on('maximizeWindow', (e) => {
+          if (win.isMaximized()) {
+            win.unmaximize();
+          } else {
+            win.maximize();
+          }
         });
 
         config.trains.forEach((value) => {
