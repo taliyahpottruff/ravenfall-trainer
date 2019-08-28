@@ -12,8 +12,6 @@ const {
 var sanitize = require('sanitize-html');
 var Url = require('url-parse');
 
-require('update-electron-app')();
-
 //Set options
 let options = {
   options: {
@@ -218,7 +216,7 @@ app.on('ready', () => {
         ];
         var curTrain = 0;
 
-        trainLoop = function (channel, userstate, message, self, initTrain, randTrain) {
+        function trainLoop(channel, userstate, message, self, initTrain, randTrain) {
           win.webContents.send('inGame', true);
           inGame = true;
           var random = Math.floor(Math.random() * config.trains.length);
@@ -243,7 +241,7 @@ app.on('ready', () => {
           win.webContents.send('training', data.training);
         };
 
-        setJoinTimeout = () => {
+        function setJoinTimeout() {
           joinTimeout = true;
           setInterval(function () {
             joinTimeout = false;
@@ -310,7 +308,7 @@ app.on('ready', () => {
 });
 
 
-loginWinFunc = function (win) {
+let loginWinFunc = function (win) {
   let loginWin = new BrowserWindow({
     width: 887,
     height: 556,
@@ -386,9 +384,9 @@ loginWinFunc = function (win) {
   });
 
   loginWin.loadFile("./src/pages/loginForm.html");
-}
+};
 
-clean = (input) => {
+let clean = (input) => {
   return sanitize(input, {
     allowedTags: [],
     allowedAttributes: {
@@ -396,4 +394,6 @@ clean = (input) => {
     },
     allowedIframeHostnames: []
   });
-}
+};
+
+require('update-electron-app')();

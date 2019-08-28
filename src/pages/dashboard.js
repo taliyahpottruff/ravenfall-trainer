@@ -39,6 +39,12 @@ document.querySelectorAll('.trcheck').forEach((value) => {
     });
 });
 
+document.querySelectorAll('.nextTrainButton').forEach((value) => {
+    value.addEventListener("click", (e) => {
+        ipcRenderer.send('method-trainNext');
+    });
+});
+
 nextTraining = function () {
     ipcRenderer.send('method-trainNext');
 };

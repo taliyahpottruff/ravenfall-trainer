@@ -1,17 +1,20 @@
 {
   "name": "ravenfall-trainer",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "description": "Trainer for zerratar's ravenfall",
   "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "set NODE_ENV=dev && electron ."
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "author": "Trenton Pottruff",
   "license": "ISC",
   "dependencies": {
     "@madelsberger/pausebuffer": "^1.0.0",
     "base64-url": "^2.3.2",
+    "electron-compile": "^6.4.4",
     "electron-squirrel-startup": "^1.0.0",
     "electron-updater": "^4.1.2",
     "request": "^2.88.0",
@@ -25,9 +28,46 @@
     "assets": "config/**/*"
   },
   "devDependencies": {
-    "electron": "^6.0.3",
-    "electron-builder": "^21.2.0",
-    "electron-packager": "^14.0.4",
-    "electron-winstaller": "^4.0.0"
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "electron-forge": "^5.2.4",
+    "electron-prebuilt-compile": "4.0.0"
+  },
+  "config": {
+    "forge": {
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb",
+          "rpm"
+        ]
+      },
+      "electronPackagerConfig": {
+        "packageManager": "npm"
+      },
+      "electronWinstallerConfig": {
+        "name": "ravenfall_trainer"
+      },
+      "electronInstallerDebian": {},
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "trentonpottruff",
+        "name": "ravenfall-trainer"
+      },
+      "windowsStoreConfig": {
+        "packageName": "",
+        "name": "ravenfalltrainer"
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trentonpottruff/ravenfall-trainer.git"
   }
 }
