@@ -91,3 +91,4 @@ typings/
 config.json
 src/config/*
 bin/*
+out/*
