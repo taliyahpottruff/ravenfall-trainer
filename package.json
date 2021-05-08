@@ -18,7 +18,7 @@
     "sanitize-html": "^1.20.1",
     "tmi.js": "^1.4.5",
     "update-electron-app": "^1.5.0",
-    "url-parse": "^1.4.7"
+    "url-parse": "^1.5.0"
   },
   "bin": "bin/app.exe",
   "pkg": {
